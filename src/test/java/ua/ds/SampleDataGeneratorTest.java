@@ -26,4 +26,15 @@ public class SampleDataGeneratorTest {
         assertThat(generator.next(), is(4));
         assertThat(generator.next(), is(0));
     }
+    
+    @Test
+    public void generateDataInSpecifiedRange() throws Exception {
+        SampleDataGenerator generator = new SampleDataGenerator(1, 5);
+
+        assertThat(generator.next(), is(1));
+        assertThat(generator.next(), is(2));
+        assertThat(generator.next(), is(3));
+        assertThat(generator.next(), is(4));
+        assertThat(generator.next(), is(1));
+    }
 }

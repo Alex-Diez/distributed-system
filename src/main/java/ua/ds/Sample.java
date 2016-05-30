@@ -1,8 +1,8 @@
 package ua.ds;
 
 public class Sample {
-    private final int id;
-    private final int data;
+    final int id;
+    final int data;
 
     public Sample(int id, int data) {
         this.id = id;

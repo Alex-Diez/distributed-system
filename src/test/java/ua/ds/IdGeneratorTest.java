@@ -23,8 +23,11 @@ public class IdGeneratorTest {
         assertThat(generator.next(), is(10));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void stepCanNotBeZero_throwsException() throws Exception {
-        IdGenerator generator = new IdGenerator(0);
+    @Test
+    public void startWithNonZeroId() throws Exception {
+        IdGenerator generator = new IdGenerator(5, 1);
+
+        assertThat(generator.next(), is(5));
+        assertThat(generator.next(), is(6));
     }
 }

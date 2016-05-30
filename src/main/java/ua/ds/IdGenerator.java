@@ -6,9 +6,11 @@ public class IdGenerator {
     private int current;
 
     public IdGenerator(int step) {
-        if (step == 0) {
-            throw new IllegalArgumentException();
-        }
+        this(0, step);
+    }
+
+    public IdGenerator(int startWith, int step) {
+        this.current = startWith;
         this.step = step;
     }
 

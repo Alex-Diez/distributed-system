@@ -17,6 +17,14 @@ public class SampleGeneratorTest {
     }
 
     @Test
+    public void idempotentSampleGenerator() throws Exception {
+        SampleGenerator sampleGenerator = new SampleGenerator(new IdGenerator(0));
+
+        assertThat(sampleGenerator.sample(), is(new Sample(0, 0)));
+        assertThat(sampleGenerator.sample(), is(new Sample(0, 0)));
+    }
+
+    @Test
     public void generateSampleWithNewId() throws Exception {
         assertThat(generator.sample(), is(new Sample(0, 0)));
         assertThat(generator.sample(), is(new Sample(1, 0)));
