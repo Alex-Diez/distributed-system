@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.model.HttpStatusCode;
 
@@ -15,6 +16,7 @@ import static org.mockserver.model.HttpStatusCode.CREATED_201;
 import static org.mockserver.model.HttpStatusCode.NOT_FOUND_404;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
+@Category(UnitTest.class)
 public class SampleSenderTest {
 
     private static MockServerClient mockServer;

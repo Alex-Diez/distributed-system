@@ -2,6 +2,7 @@ package ua.ds;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@Category(UnitTest.class)
 public class TopologyCalculationTest {
 
     private Topology topology;

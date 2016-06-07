@@ -1,10 +1,12 @@
 package ua.ds;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@Category(UnitTest.class)
 public class SampleDataGeneratorTest {
 
     @Test
