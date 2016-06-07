@@ -1,12 +1,10 @@
 package ua.ds;
 
 public class Sample {
-    final String topologyName;
     final int id;
     final int data;
 
-    public Sample(String topologyName, int id, int data) {
-        this.topologyName = topologyName;
+    public Sample(int id, int data) {
         this.id = id;
         this.data = data;
     }

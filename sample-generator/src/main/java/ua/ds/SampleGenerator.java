@@ -16,6 +16,6 @@ public class SampleGenerator {
     public Sample sample() {
         int id = sampleIdGenerator.next();
         int data = dataGenerator.next();
-        return new Sample("", id, data);
+        return new Sample(id, data);
     }
 }

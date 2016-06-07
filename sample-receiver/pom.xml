@@ -20,7 +20,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <includes>
-                        <include>ua.ds.SampleReceiverTest.java</include>
+                        <include>ua.ds.SampleReceiverRestApiTest.java</include>
                     </includes>
                 </configuration>
             </plugin>
