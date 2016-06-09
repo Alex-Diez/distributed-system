@@ -1,84 +1,107 @@
 package ua.ds;
 
+import co.unruly.matchers.OptionalMatchers;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockserver.client.server.MockServerClient;
-import org.mockserver.model.HttpStatusCode;
+import ua.ds.Configuration.Builder;
 
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
+import java.io.IOException;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockserver.model.HttpStatusCode.BAD_REQUEST_400;
-import static org.mockserver.model.HttpStatusCode.CREATED_201;
 import static org.mockserver.model.HttpStatusCode.NOT_FOUND_404;
-import static org.mockserver.verify.VerificationTimes.exactly;
+import static org.mockserver.model.HttpStatusCode.OK_200;
 
 @Category(UnitTest.class)
 public class SampleSenderTest {
 
-    private static MockServerClient mockServer;
+    private static HttpServerMock mockServer;
+    private CloseableHttpClient client;
+    private Builder configurationBuilder;
 
     @BeforeClass
-    public static void startProxy() {
-        mockServer = startClientAndServer(1090);
+    public static void setUpEnv() throws Exception {
+        mockServer = new HttpServerMock(1090);
     }
 
-    private void makeExpectation(String topology, HttpStatusCode expectedStatus) {
-        mockServer
-                .when(
-                        request().withMethod("POST").withPath("/submit/" + topology)
-                )
-                .respond(
-                        response().withStatusCode(expectedStatus.code())
-                );
-    }
-
-    @Test
-    public void sendSampleWithDefaultConfiguration() throws Exception {
-        makeExpectation("topology", CREATED_201);
-
-        SampleSender.main(new String[] {"--topology", "topology"});
-
-        mockServer.verify(request().withMethod("POST").withPath("/submit/topology"), exactly(1));
-    }
-
-    @Test
-    public void sendSampleFiveTimes() throws Exception {
-        makeExpectation("topology", CREATED_201);
-
-        SampleSender.main(new String[] {"--count", "5", "--topology", "topology"});
-
-        mockServer.verify(request().withMethod("POST").withPath("/submit/topology"), exactly(5));
-    }
-
-    @Test
-    public void sendSampleOnNotExisted() throws Exception {
-        makeExpectation("not-existed", NOT_FOUND_404);
-
-        SampleSender.main(new String[] {"--count", "2", "--topology", "not-existed"});
-
-        mockServer.verify(request().withMethod("POST").withPath("/submit/not-existed"), exactly(1));
-    }
-    
-    @Test
-    public void sendSampleWithoutTopology() throws Exception {
-        makeExpectation("", BAD_REQUEST_400);
-
-        SampleSender.main(new String[] {"--count", "2"});
-
-        mockServer.verify(request().withMethod("POST").withPath("/submit/"), exactly(1));
+    @Before
+    public void setUp() throws Exception {
+        client = HttpClients.createDefault();
+        configurationBuilder = new Builder();
     }
 
     @After
     public void tearDown() throws Exception {
-        mockServer.reset();
+        mockServer.resetServerState();
+        client.close();
     }
 
     @AfterClass
-    public static void stopProxy() {
-        mockServer.stop();
+    public static void tearDownClass() throws Exception {
+        mockServer.stopServer();
     }
+
+    @Test
+    public void responseHandlerShouldBeInvokedOnResponse() throws Exception {
+        mockServer.setupExpectation("", OK_200);
+
+        SpyResponseHandler handler = new SpyResponseHandler();
+        SampleSender sampleSender = new SampleSender(client, handler, new Configuration.Builder().build());
+
+        sampleSender.send();
+        assertThat(handler.wasInvoked(), is(true));
+    }
+
+    @Test
+    public void showsThatTopologyNameWasNotSetMessage() throws Exception {
+        mockServer.setupExpectation("", BAD_REQUEST_400);
+
+        Configuration conf = configurationBuilder.build();
+        HttpResponseHandler handler = new HttpResponseHandler(conf);
+        SampleSender sampleSender = new SampleSender(client, handler, conf);
+
+        Optional<String> message = sampleSender.send();
+
+        assertThat(message, OptionalMatchers.contains("Topology name was not set, please set topology name by '--topology' flag"));
+    }
+
+    @Test
+    public void showsThatTopologyNameWasNotFoundMessage() throws Exception {
+        mockServer.setupExpectation("/not-found-topology", NOT_FOUND_404);
+
+        Configuration conf = configurationBuilder.withTopology("/not-found-topology").build();
+        ResponseHandler<Optional<String>> handler = new HttpResponseHandler(conf);
+        SampleSender sampleSender = new SampleSender(client, handler, conf);
+
+        Optional<String> message = sampleSender.send();
+
+        assertThat(message, OptionalMatchers.contains("Topology 'not-found-topology' was not found in sample receiver"));
+    }
+
+    private class SpyResponseHandler
+            implements ResponseHandler<Optional<String>> {
+        private boolean invoked;
+
+        @Override
+        public Optional<String> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+            invoked = true;
+            return null;
+        }
+
+        boolean wasInvoked() {
+            return invoked;
+        }
+    }
+
 }
