@@ -22,10 +22,10 @@ public class TopologyManager {
         }
     }
 
-    @DELETE
-    @Path("/{topology}")
-    public Response removeTopology(@PathParam("topology") String topology) {
-        topologies.remove(topology);
-        return Response.ok().build();
-    }
+//    @DELETE
+//    @Path("/{topology}")
+//    public Response removeTopology(@PathParam("topology") String topology) {
+//        topologies.remove(topology);
+//        return Response.ok().build();
+//    }
 }

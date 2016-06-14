@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockserver.client.server.MockServerClient;
+import org.mockserver.model.HttpStatusCode;
 import ua.ds.Configuration.Builder;
 
 import java.io.IOException;
@@ -19,6 +21,9 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.HttpStatusCode.BAD_REQUEST_400;
 import static org.mockserver.model.HttpStatusCode.NOT_FOUND_404;
 import static org.mockserver.model.HttpStatusCode.OK_200;
@@ -26,13 +31,13 @@ import static org.mockserver.model.HttpStatusCode.OK_200;
 @Category(UnitTest.class)
 public class SampleSenderTest {
 
-    private static HttpServerMock mockServer;
+    private static MockServerClient mockServer;
     private CloseableHttpClient client;
     private Builder configurationBuilder;
 
     @BeforeClass
     public static void setUpEnv() throws Exception {
-        mockServer = new HttpServerMock(1090);
+        mockServer = startClientAndServer(1090);
     }
 
     @Before
@@ -43,18 +48,28 @@ public class SampleSenderTest {
 
     @After
     public void tearDown() throws Exception {
-        mockServer.resetServerState();
+        mockServer.reset();
         client.close();
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        mockServer.stopServer();
+        mockServer.stop();
+    }
+
+    private void makeExpectation(String topology, HttpStatusCode expectedStatus) {
+        mockServer
+                .when(
+                        request().withMethod("POST").withPath("/submit/" + topology)
+                )
+                .respond(
+                        response().withStatusCode(expectedStatus.code())
+                );
     }
 
     @Test
     public void responseHandlerShouldBeInvokedOnResponse() throws Exception {
-        mockServer.setupExpectation("", OK_200);
+        makeExpectation("", OK_200);
 
         SpyResponseHandler handler = new SpyResponseHandler();
         SampleSender sampleSender = new SampleSender(client, handler, new Configuration.Builder().build());
@@ -65,7 +80,7 @@ public class SampleSenderTest {
 
     @Test
     public void showsThatTopologyNameWasNotSetMessage() throws Exception {
-        mockServer.setupExpectation("", BAD_REQUEST_400);
+        makeExpectation("", BAD_REQUEST_400);
 
         Configuration conf = configurationBuilder.build();
         HttpResponseHandler handler = new HttpResponseHandler(conf);
@@ -78,8 +93,7 @@ public class SampleSenderTest {
 
     @Test
     public void showsThatTopologyNameWasNotFoundMessage() throws Exception {
-        mockServer.setupExpectation("/not-found-topology", NOT_FOUND_404);
-
+        makeExpectation("/not-found-topology", NOT_FOUND_404);
         Configuration conf = configurationBuilder.withTopology("/not-found-topology").build();
         ResponseHandler<Optional<String>> handler = new HttpResponseHandler(conf);
         SampleSender sampleSender = new SampleSender(client, handler, conf);

@@ -1,18 +1,19 @@
 package ua.ds;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.util.Optional;
 
-@Path("/submit")
 public class SampleReceiver {
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response receive(String sample) {
+    private final TopologyRepository repository;
 
-        return Response.status(400).build();
+    public SampleReceiver(TopologyRepository repository) {
+        this.repository = repository;
+    }
+
+    public void putIntoBus(String topology, Sample sample) {
+        Optional<Topology> t = repository.get(topology);
+        if (!t.isPresent()) {
+            throw new TopologyNotFoundException();
+        }
     }
 }

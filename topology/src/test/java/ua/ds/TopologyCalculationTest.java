@@ -20,7 +20,7 @@ public class TopologyCalculationTest {
 
     @Before
     public void setUp() throws Exception {
-        topology = new Topology();
+        topology = new Topology("topology");
         calculator = new TopologyCalculator();
     }
 

@@ -14,7 +14,7 @@ public class TopologyCreationTest {
 
     @Before
     public void setUp() throws Exception {
-        topology = new Topology();
+        topology = new Topology("topology");
     }
 
     @Test

@@ -3,7 +3,6 @@ package ua.ds;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockserver.client.server.MockServerClient;
@@ -20,56 +19,66 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 @Category(UnitTest.class)
 public class SampleSenderProcessTest {
 
-    private static HttpServerMock mockServer;
+    private static MockServerClient mockServer;
 
     @BeforeClass
     public static void startProxy() {
-        mockServer = new HttpServerMock(1090);
+        mockServer = startClientAndServer(1090);
+    }
+
+    private void makeExpectation(String topology, HttpStatusCode expectedStatus) {
+        mockServer
+                .when(
+                        request().withMethod("POST").withPath("/submit/" + topology)
+                )
+                .respond(
+                        response().withStatusCode(expectedStatus.code())
+                );
     }
 
     @Test
     public void sendSampleWithDefaultConfiguration() throws Exception {
-        mockServer.setupExpectation("topology", CREATED_201);
+        makeExpectation("topology", CREATED_201);
 
         SampleSender.main(new String[] {"--topology", "topology"});
 
-        mockServer.verificationOf("POST", "/topology", 1);
+        mockServer.verify(request().withMethod("POST").withPath("/submit/topology"), exactly(1));
     }
 
     @Test
     public void sendSampleFiveTimes() throws Exception {
-        mockServer.setupExpectation("topology", CREATED_201);
+        makeExpectation("topology", CREATED_201);
 
         SampleSender.main(new String[] {"--count", "5", "--topology", "topology"});
 
-        mockServer.verificationOf("POST", "/topology", 5);
+        mockServer.verify(request().withMethod("POST").withPath("/submit/topology"), exactly(5));
     }
 
     @Test
     public void sendSampleOnNotExisted() throws Exception {
-        mockServer.setupExpectation("not-existed", NOT_FOUND_404);
+        makeExpectation("not-existed", NOT_FOUND_404);
 
         SampleSender.main(new String[] {"--count", "2", "--topology", "not-existed"});
 
-        mockServer.verificationOf("POST", "/not-existed", 1);
+        mockServer.verify(request().withMethod("POST").withPath("/submit/not-existed"), exactly(1));
     }
     
     @Test
     public void sendSampleWithoutTopology() throws Exception {
-        mockServer.setupExpectation("", BAD_REQUEST_400);
+        makeExpectation("", BAD_REQUEST_400);
 
         SampleSender.main(new String[] {"--count", "2"});
 
-        mockServer.verificationOf("POST", "/", 1);
+        mockServer.verify(request().withMethod("POST").withPath("/submit/"), exactly(1));
     }
 
     @After
     public void tearDown() throws Exception {
-        mockServer.resetServerState();
+        mockServer.reset();
     }
 
     @AfterClass
     public static void stopProxy() {
-        mockServer.stopServer();
+        mockServer.stop();
     }
 }

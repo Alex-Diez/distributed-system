@@ -87,12 +87,16 @@
             <artifactId>tests</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>distributed-system</groupId>
+            <artifactId>topology</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -101,7 +105,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -109,6 +112,10 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>co.unruly</groupId>
+            <artifactId>java-8-matchers</artifactId>
         </dependency>
     </dependencies>
 

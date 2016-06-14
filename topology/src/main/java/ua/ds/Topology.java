@@ -8,6 +8,11 @@ import java.util.Set;
 
 public class Topology {
     private final Map<Integer, Set<Integer>> graph = new HashMap<>();
+    private final String name;
+
+    public Topology(String name) {
+        this.name = name;
+    }
 
     public void addNode(int nodeId) {
         graph.computeIfAbsent(nodeId, HashSet::new);
@@ -29,6 +34,24 @@ public class Topology {
 
     public Iterable<Integer> adjacentTo(int nodeId) {
         return graph.getOrDefault(nodeId, Collections.emptySet());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj != null
+                && obj.getClass().equals(getClass())) {
+            Topology topology = (Topology)obj;
+            return topology.name.equals(name);
+        }
+        return false;
     }
 
     private class DepthFirstSearchOfCycle {
