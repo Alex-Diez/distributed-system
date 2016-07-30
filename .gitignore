@@ -70,3 +70,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+sample-generator/src/main/resources/
+sample-receiver/src/main/resources/
+sample-sender/src/main/resources/
+samples/src/main/resources/
+tests/src/main/resources/
+topology/src/main/resources/

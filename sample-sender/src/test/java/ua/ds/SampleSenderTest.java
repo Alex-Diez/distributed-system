@@ -68,23 +68,11 @@ public class SampleSenderTest {
     }
 
     @Test
-    public void responseHandlerShouldBeInvokedOnResponse() throws Exception {
-        makeExpectation("", OK_200);
-
-        SpyResponseHandler handler = new SpyResponseHandler();
-        SampleSender sampleSender = new SampleSender(client, handler, new Configuration.Builder().build());
-
-        sampleSender.send();
-        assertThat(handler.wasInvoked(), is(true));
-    }
-
-    @Test
     public void showsThatTopologyNameWasNotSetMessage() throws Exception {
         makeExpectation("", BAD_REQUEST_400);
 
         Configuration conf = configurationBuilder.build();
-        HttpResponseHandler handler = new HttpResponseHandler(conf);
-        SampleSender sampleSender = new SampleSender(client, handler, conf);
+        SampleSender sampleSender = new SampleSender(client, conf);
 
         Optional<String> message = sampleSender.send();
 
@@ -94,28 +82,12 @@ public class SampleSenderTest {
     @Test
     public void showsThatTopologyNameWasNotFoundMessage() throws Exception {
         makeExpectation("/not-found-topology", NOT_FOUND_404);
-        Configuration conf = configurationBuilder.withTopology("/not-found-topology").build();
-        ResponseHandler<Optional<String>> handler = new HttpResponseHandler(conf);
-        SampleSender sampleSender = new SampleSender(client, handler, conf);
+        Configuration conf = configurationBuilder.withTopology("not-found-topology").build();
+        SampleSender sampleSender = new SampleSender(client, conf);
 
         Optional<String> message = sampleSender.send();
 
         assertThat(message, OptionalMatchers.contains("Topology 'not-found-topology' was not found in sample receiver"));
-    }
-
-    private class SpyResponseHandler
-            implements ResponseHandler<Optional<String>> {
-        private boolean invoked;
-
-        @Override
-        public Optional<String> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-            invoked = true;
-            return null;
-        }
-
-        boolean wasInvoked() {
-            return invoked;
-        }
     }
 
 }

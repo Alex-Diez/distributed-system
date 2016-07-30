@@ -16,7 +16,6 @@
         <module>tests</module>
         <module>sample-generator</module>
         <module>topology</module>
-        <module>bus</module>
     </modules>
 
     <build>

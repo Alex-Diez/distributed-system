@@ -14,8 +14,8 @@ public class Parser {
                 i += 1;
             }
             else if ("--topology".equals(params[i])) {
-                params[i + 1] = params[i + 1].charAt(0) == '/' ? params[i + 1] : "/" + params[i + 1];
-                confBuilder.withTopology(params[i + 1]);
+                String topology = params[i + 1].charAt(0) == '/' ? params[i + 1].substring(1) : params[i + 1];
+                confBuilder.withTopology(topology);
                 i += 1;
             }
             else if ("--count".equals(params[i])) {

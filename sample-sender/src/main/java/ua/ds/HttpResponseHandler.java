@@ -12,8 +12,8 @@ class HttpResponseHandler
 
     private final String topology;
 
-    public HttpResponseHandler(Configuration conf) {
-        this.topology = conf.topology.substring(1);
+    public HttpResponseHandler(String topology) {
+        this.topology = topology;
     }
 
     @Override

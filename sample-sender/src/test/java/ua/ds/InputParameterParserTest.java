@@ -20,7 +20,7 @@ public class InputParameterParserTest {
         Configuration conf = parser.parse(new String[] {});
         assertThat(conf.host, is("localhost"));
         assertThat(conf.port, is(1090));
-        assertThat(conf.topology, is("/"));
+        assertThat(conf.topology, is(""));
         assertThat(conf.counts, is(1));
         assertThat(conf.frequency, is(0));
         assertThat(conf.frequencyPeriod, is('s'));
@@ -41,7 +41,7 @@ public class InputParameterParserTest {
     @Test
     public void topologyDefinedInParams() throws Exception {
         Configuration conf = parser.parse(new String[] {"--topology", "topology-A"});
-        assertThat(conf.topology, is("/topology-A"));
+        assertThat(conf.topology, is("topology-A"));
     }
 
     @Test

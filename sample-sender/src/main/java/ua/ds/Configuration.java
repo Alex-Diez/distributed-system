@@ -20,7 +20,7 @@ public class Configuration {
     public static class Builder {
         private String host = "localhost";
         private int port = 1090;
-        private String topology = "/";
+        private String topology = "";
         private int count = 1;
         private int frequency = 0;
         private char frequencyPeriod = 's';
